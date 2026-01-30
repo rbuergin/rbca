@@ -1,0 +1,33 @@
+Package: rbca
+Type: Package
+Title: Conjoint analysis for rating based data, including estimation and diagnosis
+Version: 1.0.0
+Date: 2026-01-29
+Authors@R: c(
+    person(
+      "Basil", "Rohr",
+      email = "basil.rohr@outlook.com",
+      role = c("aut")
+    ),
+    person(
+      "Reto", "Burgin",
+      email = "rbuergin@gmx.ch",
+      role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0002-6212-1567")
+    )
+  )
+Maintainer: Reto Burgin <rbuergin@gmx.ch>
+Description: Provides tools for estimating and visualizing hierarchical conjoint models for rating-based data. Supports multi-level modeling of individual and group levels, calculation of part-worth utilities, model comparison with likelihood ratio test and stepwise model selection process. Inspired by methodological foundations presented in Applied Conjoint Analysis by Vithala R. Rao (2014).
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.3
+Roxygen: list(markdown = TRUE)
+Depends: R (>= 3.5)
+Suggests: knitr, rmarkdown, kableExtra
+Imports: ggplot2, dplyr, tidyr, scales
+VignetteBuilder: knitr
+NeedsCompilation: no
+Packaged: 2025-07-03 07:24:44 UTC; bure
+Author: Basil Rohr [aut],
+  Reto Burgin [aut, cre] (ORCID: <https://orcid.org/0000-0002-6212-1567>)
