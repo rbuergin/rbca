@@ -9,4 +9,4 @@ To install this package directly from GitHub, use the `remotes` package:
 install.packages("remotes")
 
 # Install the package from GitHub
-remotes::install_github("username/reponame")
+remotes::install_github("rbuergin/rbca")
