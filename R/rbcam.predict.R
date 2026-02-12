@@ -9,6 +9,7 @@
 #'   If \code{NULL} (default), the original data used for model fitting is used.
 #' @param level An integer indicating the model level to be used for prediction.
 #'   Must be one of \code{1} (respondent-specific), \code{2} (group-specific), or \code{3} (pooled model).
+#' @param ... additional arguments affecting the predictions produced.
 #'
 #' @details
 #' At level 3, predictions are made using a single pooled model. At levels 1 or 2, the function applies
@@ -26,6 +27,7 @@
 #'   var.level.1 = "respondent")
 #'
 #' preds <- rbcam.predict(object = tea.m, level = 3)
+#' preds <- predict(object = tea.m, level = 3)
 #'
 #' @export
 
@@ -65,3 +67,8 @@ rbcam.predict <- function(object, newdata = NULL, level = 3) {
   return(rval)
 }
 
+#' @rdname rbcam.predict
+#' @exportS3Method predict rbcam
+predict.rbcam <- function(object, ...) {
+  rbcam.predict(object, ...)
+}

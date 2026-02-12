@@ -54,8 +54,9 @@ globalVariables(c("l2group", "resp", "respondent"))
 #'
 #' @export
 
-rbcam.pwu.plot <- function(object, term, normalized = FALSE, plot = TRUE, show.level.1 = FALSE, show.level.2 = FALSE,
-                         label.level.2 = show.level.2, jitter = FALSE, jitter.width = 0.1) {
+rbcam.pwu.plot <- function(
+    object, term, normalized = FALSE, plot = TRUE, show.level.1 = FALSE, show.level.2 = FALSE,
+    label.level.2 = show.level.2, jitter = FALSE, jitter.width = 0.1) {
 
   ## checks
   if (!inherits(object, "rbcam")) stop("'object' not of class 'rbcam'")
@@ -140,21 +141,26 @@ rbcam.pwu.plot <- function(object, term, normalized = FALSE, plot = TRUE, show.l
       )
       )
 
-      plotdata.level.1 <- plotdata.level.1 %>% left_join(
-        resp_group %>% mutate(l2group = as.character(as.integer(as.factor(group)))) %>%
-          select(respondent, l2group), by = c("resp" = "respondent")) %>%
-        select(-resp)
+      plotdata.level.1 <- plotdata.level.1 %>%
+        left_join(
+          y = resp_group %>%
+            dplyr::mutate(l2group = as.character(as.integer(as.factor(group)))) %>%
+            dplyr::select(respondent, l2group),
+          by = c("resp" = "respondent")) %>%
+        dplyr::select(-resp)
     }
 
     if (jitter) {
       pivoted_data <- plotdata.level.1[order(plotdata.level.1$value.NUM),c(1:3)] %>%
-        pivot_wider(names_from = value, values_from = utility) %>%
-        arrange(group)
+        tidyr::pivot_wider(names_from = value, values_from = utility) %>%
+        dplyr::arrange(group)
 
       dupl <- duplicated(pivoted_data[, -1]) | duplicated(pivoted_data[, -1], fromLast = TRUE)
 
-      normal <- pivoted_data[!dupl,] %>% pivot_longer(cols = !group, values_to = "utility", names_to = "value")
-      jitt <- pivoted_data[dupl,] %>% pivot_longer(cols = !group, values_to = "utility", names_to = "value")
+      normal <- pivoted_data[!dupl,] %>%
+        tidyr::pivot_longer(cols = !group, values_to = "utility", names_to = "value")
+      jitt <- pivoted_data[dupl,] %>%
+        tidyr::pivot_longer(cols = !group, values_to = "utility", names_to = "value")
 
       normal$value <- factor(normal$value, levels = unique(levels(plotdata.level.1$value[order(plotdata.level.1$value.NUM)])))
       jitt$value <- factor(jitt$value, levels = unique(levels(plotdata.level.1$value[order(plotdata.level.1$value.NUM)])))
@@ -164,9 +170,9 @@ rbcam.pwu.plot <- function(object, term, normalized = FALSE, plot = TRUE, show.l
 
       if (show.level.2){
         group_info <- plotdata.level.1 %>%
-          distinct(group, l2group)
-        normal <- normal %>% left_join(group_info, by = "group")
-        jitt   <- jitt   %>% left_join(group_info, by = "group")
+          dplyr::distinct(group, l2group)
+        normal <- normal %>% dplyr::left_join(group_info, by = "group")
+        jitt   <- jitt   %>% dplyr::left_join(group_info, by = "group")
       }
 
     }
@@ -174,7 +180,7 @@ rbcam.pwu.plot <- function(object, term, normalized = FALSE, plot = TRUE, show.l
 
 
   ## plot results
-  p <- ggplot(
+  p <- ggplot2::ggplot(
     data = plotdata.level.3,
     mapping = aes(x = value.NUM, y = utility, groups = group)) +
     theme_minimal()
@@ -182,33 +188,37 @@ rbcam.pwu.plot <- function(object, term, normalized = FALSE, plot = TRUE, show.l
     if (jitter){
       if (show.level.2){
         p <- p +
-          geom_line(data = normal, mapping = aes(x = value.NUM, y = utility, group = group, col = "level 1", linetype = l2group)) +
-          geom_line(data = jitt, mapping = aes(x = value.NUM, y = utility, group = group, col = "level 1", linetype = l2group),
-                    position=position_dodge(width=jitter.width)) + geom_hline(yintercept = 0, col = "black", lty = 2)
+          ggplot2::geom_line(
+            data = normal, mapping = aes(x = value.NUM, y = utility, group = group, col = "level 1", linetype = l2group)) +
+          ggplot2::geom_line(
+            data = jitt, mapping = aes(x = value.NUM, y = utility, group = group, col = "level 1", linetype = l2group),
+            position=position_dodge(width=jitter.width)) + geom_hline(yintercept = 0, col = "black", lty = 2)
 
       } else {
         p <- p +
-          geom_line(data = normal, mapping = aes(x = value.NUM, y = utility, group = group, col = "level 1"), lty = 1) +
-          geom_line(data = jitt, mapping = aes(x = value.NUM, y = utility, group = group, col = "level 1"), lty = 1,
-                    position=position_dodge(width=jitter.width)) + geom_hline(yintercept = 0, col = "black", lty = 2)
+          ggplot2::geom_line(
+            data = normal, mapping = aes(x = value.NUM, y = utility, group = group, col = "level 1"), lty = 1) +
+          ggplot2::geom_line(
+            data = jitt, mapping = aes(x = value.NUM, y = utility, group = group, col = "level 1"), lty = 1,
+            position=position_dodge(width=jitter.width)) + geom_hline(yintercept = 0, col = "black", lty = 2)
       }
     } else {
       if (show.level.2){
         p <- p +
-          geom_line(data = plotdata.level.1, mapping = aes(col = "level 1", linetype = l2group))
+          ggplot2::geom_line(data = plotdata.level.1, mapping = aes(col = "level 1", linetype = l2group))
       } else
         p <- p +
-          geom_line(data = plotdata.level.1, mapping = aes(col = "level 1"), lty = 1)
+          ggplot2::geom_line(data = plotdata.level.1, mapping = aes(col = "level 1"), lty = 1)
     }
     if (normalized) {
       plotdata.level.1.agg <- aggregate(utility ~ value + value.NUM, data = plotdata.level.1, FUN = mean)
       plotdata.level.1.agg$group <- "level 1"
       p <- p +
-        geom_line(
+        ggplot2::geom_line(
           data = plotdata.level.1.agg,
           mapping = aes(col = "level 1 average"),
           lwd = 1) +
-        geom_point(
+        ggplot2::geom_point(
           data = plotdata.level.1.agg,
           mapping = aes(col = "level 1 average"))
     }
@@ -216,15 +226,15 @@ rbcam.pwu.plot <- function(object, term, normalized = FALSE, plot = TRUE, show.l
   if (show.level.2) {
     if (label.level.2)  {
       p <- p +
-        geom_line(
+        ggplot2::geom_line(
           data = plotdata.level.2,
           mapping = aes(col = "level 2", linetype = l2group)) +
-        scale_linetype(
+        ggplot2::scale_linetype(
           name = "cluster (level 2)",
           labels = object$var.level.2.levels)
     } else {
       p <- p +
-        geom_line(
+        ggplot2::geom_line(
           data = plotdata.level.2,
           mapping = aes(col = "level 2"),
           lty = 1)
@@ -233,26 +243,26 @@ rbcam.pwu.plot <- function(object, term, normalized = FALSE, plot = TRUE, show.l
       plotdata.level.1.agg <- aggregate(utility ~ value + value.NUM, data = plotdata.level.2, FUN = mean)
       plotdata.level.1.agg$group <- "level 2"
       p <- p +
-        geom_line(
+        ggplot2::geom_line(
           data = plotdata.level.1.agg,
           mapping = aes(col = "level 2 average"),
           lwd = 1) +
-        geom_point(
+        ggplot2::geom_point(
           data = plotdata.level.1.agg,
           mapping = aes(col = "level 2 average"))
     }
   }
   p <- p +
-    geom_line(mapping = aes(col = "level 3"), lwd = 1) +
-    geom_point(mapping = aes(col = "level 3")) +
-    geom_hline(yintercept = 0, col = "black", lty = 2) +
-    scale_x_continuous(
+    ggplot2::geom_line(mapping = aes(col = "level 3"), lwd = 1) +
+    ggplot2::geom_point(mapping = aes(col = "level 3")) +
+    ggplot2::geom_hline(yintercept = 0, col = "black", lty = 2) +
+    ggplot2::scale_x_continuous(
       name = term,
       breaks = plotdata.level.3$value.NUM,
       labels = levels(plotdata.level.3$value)) +
-    scale_y_continuous(
+    ggplot2::scale_y_continuous(
       name = ifelse(normalized, "normalized utility", "utility")) +
-    scale_color_manual(
+    ggplot2::scale_color_manual(
       name = "",
       values = c(
         "level 1" = if (show.level.1) "grey" else NULL,

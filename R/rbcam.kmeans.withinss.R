@@ -27,8 +27,7 @@
 #'
 #' @return A list containing:
 #' \describe{
-#'   \item{\code{plot}}{A ggplot object showing the total within-cluster sum of squares
-#'     for each number of clusters.}
+#'   \item{\code{plot}}{A ggplot object showing the total within-cluster sum of squares for each number of clusters.}
 #'   \item{\code{tot.withinss}}{A numeric vector of total within-cluster sum of squares.}
 #'   \item{\code{centers.seq}}{The sequence of cluster numbers that was evaluated.}
 #' }
@@ -71,18 +70,20 @@ rbcam.kmeans.withinss <- function(object, centers.seq, plot = TRUE, ...) {
   if (missing(centers.seq)) centers.seq <- 1:pmax(floor(2 / 3 * nrow(coef)), 1)
   # there may still be an error ...
   kmeans.list <- lapply(X = centers.seq, FUN = function(x) kmeans(x = coef, centers = x, ...))
+  tot.withinss <- sapply(X = kmeans.list, FUN = function(x) x$tot.withinss)
   pdat <- data.frame(
     centers = centers.seq,
-    tot.withinss = sapply(X = kmeans.list, FUN = function(x) x$tot.withinss))
-  p <- ggplot(
+    tot.withinss = tot.withinss)
+  p <- ggplot2::ggplot(
     data = pdat,
     mapping = aes(x = centers, y = tot.withinss)) +
-    geom_line() +
-    geom_point() +
-    theme_minimal()
+    ggplot2::geom_line() +
+    ggplot2::geom_point() +
+    ggplot2::theme_minimal()
   if (plot) print(p)
   rval <- list(
-    tot.withinss <- sapply(X = kmeans.list, FUN = function(x) x$tot.withinss),
-    centers.seq <- centers.seq)
+    plot = p,
+    tot.withinss = tot.withinss,
+    centers.seq = centers.seq)
   return(rval)
 }

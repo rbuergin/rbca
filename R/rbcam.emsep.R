@@ -62,8 +62,6 @@
 #'
 #' @export
 
-
-
 rbcam.emsep <- function(object.list, object.ref, level = 3) {
 
   ## checks

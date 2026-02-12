@@ -1,10 +1,25 @@
-exportPattern("^[[:alpha:]]+")
-importFrom(stats, contr.poly, contr.sum, contr.treatment, lm, na.omit, terms, aggregate, as.formula,
-           coef, model.frame, model.matrix, reshape, formula, predict, quantile, residuals,
-               rnorm, update, kmeans, logLik, pchisq, symnum, AIC, deviance, df.residual)
-importFrom(ggplot2, ggplot, aes, geom_point, geom_line, geom_hline, theme_minimal, scale_x_continuous,
-           scale_y_continuous, scale_color_manual, position_dodge, scale_linetype, geom_bar, scale_fill_manual,
-           geom_errorbar)
-importFrom(tidyr, pivot_longer, pivot_wider)
+importFrom(
+  stats, contr.poly, contr.sum, contr.treatment, lm, na.omit, terms, aggregate, as.formula,
+  coef, model.frame, model.matrix, reshape, formula, predict, quantile, residuals,
+  rnorm, update, kmeans, logLik, pchisq, symnum, AIC, deviance, df.residual)
+importFrom(
+  tidyr, pivot_longer, pivot_wider)
+import(
+  ggplot2, dplyr, scales)
 
-import(dplyr, scales)
+S3method(coef,rbcam)
+S3method(predict,rbcam)
+export(rbcam)
+export(rbcam.coef)
+export(rbcam.emsep)
+export(rbcam.kmeans)
+export(rbcam.kmeans.withinss)
+export(rbcam.lrtest)
+export(rbcam.msep)
+export(rbcam.predict)
+export(rbcam.pwu)
+export(rbcam.pwu.plot)
+export(rbcam.rimp)
+export(rbcam.rimp.plot)
+export(rbcam.rsquared)
+export(rbcam.step)

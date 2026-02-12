@@ -12,6 +12,7 @@
 #'     \item \code{2}: Group-level models
 #'     \item \code{3}: Pooled model (default)
 #'   }
+#' @param ... other arguments.
 #'
 #' @return A named vector (for level 3), or a matrix (for levels 1 or 2), with the estimated model coefficients.
 #'   \itemize{
@@ -31,6 +32,7 @@
 #'
 #' # Extract pooled model coefficients
 #' rbcam.coef(object = tea.m , level = 3)
+#' coef(object = tea.m , level = 3)
 #'
 #' # Extract individual-level coefficients
 #' rbcam.coef(object = tea.m , level = 1)
@@ -59,4 +61,10 @@ rbcam.coef <- function(object, level = 3) {
     rownames(rval) <- object[[paste0("var.level.", level, ".levels")]]
   }
   return(rval)
+}
+
+#' @rdname rbcam.coef
+#' @exportS3Method coef rbcam
+coef.rbcam <- function(object, ...) {
+  rbcam.coef(object, ...)
 }

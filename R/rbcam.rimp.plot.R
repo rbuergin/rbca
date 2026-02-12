@@ -121,22 +121,23 @@ rbcam.rimp.plot <- function(object, show.level.1 = FALSE, show.level.2 = FALSE, 
 
 
   ## plot the data
-  p <- ggplot(
+  p <- ggplot2::ggplot(
     data = plotdata.level.3,
     mapping = aes(x = attribute.NUM, y = rimp)) +
-    theme_minimal()
+    ggplot2::theme_minimal()
   p <- p +
-    geom_bar(stat = "identity", mapping = aes(fill = "level 3")) +
-    scale_x_continuous(
+    ggplot2::geom_bar(stat = "identity", mapping = aes(fill = "level 3")) +
+    ggplot2::scale_x_continuous(
       name = "attributes",
       breaks = seq_along(rimp.level.3),
       labels = names(rimp.level.3)) +
-    scale_y_continuous(
+    ggplot2::scale_y_continuous(
       labels = scales::percent) +
-    scale_fill_manual(name = "", values = c("level 3" = "grey50"))
+    ggplot2::scale_fill_manual(
+      name = "", values = c("level 3" = "grey50"))
   if (sim) {
     p <- p  +
-      geom_errorbar(
+      ggplot2::geom_errorbar(
         data = aggregate(rimp ~ attribute + attribute.NUM, data = rimp.sim,
                          FUN = function(x) quantile(x, c(0.025, 0.975))),
         mapping = aes(
@@ -146,33 +147,33 @@ rbcam.rimp.plot <- function(object, show.level.1 = FALSE, show.level.2 = FALSE, 
   }
   if (show.level.2) {
     p <- p  +
-      geom_errorbar(
+      ggplot2::geom_errorbar(
         data = aggregate(rimp ~ attribute + attribute.NUM, data = plotdata.level.2,
                          FUN = function(x) quantile(x, c(0.025, 0.975))),
         mapping = aes(
           x = attribute.NUM + 0.2 * (show.level.1 | sim),
           y = NULL, ymin = rimp[, 1], ymax = rimp[, 2], col = "level 2"),
         width = 0.2)  +
-      geom_point(
+      ggplot2::geom_point(
         data = aggregate(rimp ~ attribute + attribute.NUM, data = plotdata.level.2, FUN = mean),
         mapping = aes(x = attribute.NUM + 0.2 * (show.level.1 | sim), col = "level 2"))
   }
   if (show.level.1) {
     p <- p  +
-      geom_errorbar(
+      ggplot2::geom_errorbar(
         data = aggregate(rimp ~ attribute + attribute.NUM, data = plotdata.level.1,
                          FUN = function(x) quantile(x, c(0.025, 0.975))),
         mapping = aes(
           x = attribute.NUM - 0.2 * (show.level.2 | sim),
           y = NULL, ymin = rimp[, 1], ymax = rimp[, 2], col = "level 1"),
         width = 0.2)  +
-      geom_point(
+      ggplot2::geom_point(
         data = aggregate(rimp ~ attribute + attribute.NUM, data = plotdata.level.1, FUN = mean),
         mapping = aes(x = attribute.NUM - 0.2 * (show.level.2 | sim), col = "level 1"))
   }
   if (show.level.1 | show.level.2 | sim) {
     p <- p +
-      scale_color_manual(
+      ggplot2::scale_color_manual(
         name = "",
         values = c(
           if (show.level.1) "level 1" = "red",
