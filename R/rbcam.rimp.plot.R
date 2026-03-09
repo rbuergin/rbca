@@ -24,16 +24,26 @@
 #' @examples
 #' data(tea)
 #'
+#' # Adding a random group variable to allow for all plot options
+#' tea$randGroup <- as.factor(sample(
+#'   x = LETTERS[1:2],
+#'   size = nlevels(tea$respondent),
+#'   replace = TRUE))[tea$respondent]
+#'
+#' # Estimate the model
 #' tea.m <- rbcam(
 #'   formula = rating ~ price + variety + kind + aroma,
 #'   data = tea,
-#'   var.level.1 = "respondent")
+#'   var.level.1 = "respondent",
+#'   var.level.2 = "randGroup")
 #'
 #' # Basic plot of RIMP at population level with distribution of level 1 individuals
-#' rbcam.rimp.plot(object = tea.m, show.level.1 = TRUE)
+#' rbcam.rimp.plot(object = tea.m, show.level.1 = TRUE, show.level.2 = TRUE)
 #'
-#' # With simulation-based uncertainty
-#' rbcam.rimp.plot(object = tea.m, sim = TRUE, nsim = 50)
+#' # Include a simulation of the level 1 uncertainty based on the level 3 model
+#' rbcam.rimp.plot(object = tea.m, sim = TRUE, nsim = 50, show.level.1 = TRUE)
+
+#'
 #'
 #' @export
 
@@ -126,15 +136,12 @@ rbcam.rimp.plot <- function(object, show.level.1 = FALSE, show.level.2 = FALSE, 
     mapping = aes(x = attribute.NUM, y = rimp)) +
     ggplot2::theme_minimal()
   p <- p +
-    ggplot2::geom_bar(stat = "identity", mapping = aes(fill = "level 3")) +
     ggplot2::scale_x_continuous(
       name = "attributes",
       breaks = seq_along(rimp.level.3),
       labels = names(rimp.level.3)) +
     ggplot2::scale_y_continuous(
-      labels = scales::percent) +
-    ggplot2::scale_fill_manual(
-      name = "", values = c("level 3" = "grey50"))
+      labels = scales::percent)
   if (sim) {
     p <- p  +
       ggplot2::geom_errorbar(
@@ -142,8 +149,11 @@ rbcam.rimp.plot <- function(object, show.level.1 = FALSE, show.level.2 = FALSE, 
                          FUN = function(x) quantile(x, c(0.025, 0.975))),
         mapping = aes(
           x = attribute.NUM - 0.2 * show.level.2 + 0.2 * show.level.1,
-          y = NULL, ymin = rimp[, 1], ymax = rimp[, 2], col = "simulated"),
-        width = 0.2)
+          y = NULL, ymin = rimp[, 1], ymax = rimp[, 2], colour = "simulated"),
+        width = 0.2)  +
+      ggplot2::geom_point(
+        data = aggregate(rimp ~ attribute + attribute.NUM, data = rimp.sim, FUN = mean),
+        mapping = aes(x = attribute.NUM - 0.2 * show.level.2 + 0.2 * show.level.1, colour = "simulated"))
   }
   if (show.level.2) {
     p <- p  +
@@ -152,11 +162,11 @@ rbcam.rimp.plot <- function(object, show.level.1 = FALSE, show.level.2 = FALSE, 
                          FUN = function(x) quantile(x, c(0.025, 0.975))),
         mapping = aes(
           x = attribute.NUM + 0.2 * (show.level.1 | sim),
-          y = NULL, ymin = rimp[, 1], ymax = rimp[, 2], col = "level 2"),
+          y = NULL, ymin = rimp[, 1], ymax = rimp[, 2], colour = "level 2"),
         width = 0.2)  +
       ggplot2::geom_point(
         data = aggregate(rimp ~ attribute + attribute.NUM, data = plotdata.level.2, FUN = mean),
-        mapping = aes(x = attribute.NUM + 0.2 * (show.level.1 | sim), col = "level 2"))
+        mapping = aes(x = attribute.NUM + 0.2 * (show.level.1 | sim), colour = "level 2"))
   }
   if (show.level.1) {
     p <- p  +
@@ -165,25 +175,26 @@ rbcam.rimp.plot <- function(object, show.level.1 = FALSE, show.level.2 = FALSE, 
                          FUN = function(x) quantile(x, c(0.025, 0.975))),
         mapping = aes(
           x = attribute.NUM - 0.2 * (show.level.2 | sim),
-          y = NULL, ymin = rimp[, 1], ymax = rimp[, 2], col = "level 1"),
+          y = NULL, ymin = rimp[, 1], ymax = rimp[, 2], colour = "level 1"),
         width = 0.2)  +
       ggplot2::geom_point(
         data = aggregate(rimp ~ attribute + attribute.NUM, data = plotdata.level.1, FUN = mean),
-        mapping = aes(x = attribute.NUM - 0.2 * (show.level.2 | sim), col = "level 1"))
+        mapping = aes(x = attribute.NUM - 0.2 * (show.level.2 | sim), colour = "level 1"))
   }
-  if (show.level.1 | show.level.2 | sim) {
-    p <- p +
-      ggplot2::scale_color_manual(
-        name = "",
-        values = c(
-          if (show.level.1) "level 1" = "red",
-          if (show.level.2) "level 2" = "blue",
-          if (sim) "simulated" = "black"),
-        labels = c(
-          if (show.level.1) paste0(object$var.level.1, " (level 1)\n(mean, 95%-interval)"),
-          if (show.level.2) paste0(object$var.level.2, " (level 2)\n(mean, 95%-interval)"),
-          if (sim) "sim. level 3\n(95%-interval)"))
-  }
+  p <- p +
+    geom_point(mapping = aes(colour = "level 3")) +
+    ggplot2::scale_color_manual(
+      name = "",
+      values = c(
+        if (show.level.1) c("level 1" = "grey"),
+        if (show.level.2) c("level 2" = "blue"),
+        c("level 3" = "red"),
+        if (sim) c("simulated" = "black")),
+      labels = c(
+        if (show.level.1) paste0(object$var.level.1, " (level 1)\n(mean,\n95%-interquantile range)"),
+        if (show.level.2) paste0(object$var.level.2, " (level 2)\n(mean,\n95%-interquantile range)"),
+        "level 3",
+        if (sim) "simulation for level 1\nuncertainty based\non level 3 model\n(mean,\n95%-interquantile range)"))
   if (plot) print(p)
 
   return(invisible(p))
