@@ -64,6 +64,7 @@ rbcam.rsquared <- function(object, level = 3, adjusted = TRUE) {
   if (adjusted) {
     dftot <- nrow(object$data) - 1
     dfres <- nrow(object$data) - p
+    if (dfres == 0) warning("residual degrees of freedom are zero; adjusted R^2 cannot be computed.")
     rval <- 1 - (ssres / dfres) / (sstot / dftot)
   } else {
     rval <- 1 - ssres / sstot
